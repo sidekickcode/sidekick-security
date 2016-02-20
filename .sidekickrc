@@ -1,0 +1,14 @@
+{
+    "exclude": [
+        "/node_modules"
+    ],
+    "languages": {
+        "js": {
+            "analysers": [
+                "eslint",
+                "js-todos",
+                "jscs"
+            ]
+        }
+    }
+}

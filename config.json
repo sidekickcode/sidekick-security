@@ -1,0 +1,13 @@
+{
+  "analyser": "sidekick-security",
+  "version": "0.0.1",
+  "interpreter": "node",
+  "script": "index.js",
+  "scope": "file",
+  "category": "object",
+  "configurable": true,
+  "displayCategory": "security",
+  "displayName": "Security checker",
+  "shortDescription": "Uses patterns originally developed for the gitrob project to check that your code is free of security issues.",
+  "underlyingAnalyser": ""
+}
