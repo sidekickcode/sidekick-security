@@ -73,7 +73,7 @@ function scan(dir){
     next();
   });
 
-  var badExtentionFilter = through2.obj(function (item, enc, next) {
+  var badExtentionFinder = through2.obj(function (item, enc, next) {
     if(item.stats.isFile()){
       if(isExtentionBlacklisted(getExtention(item.path))){
         console.log('have bad file');
@@ -88,7 +88,7 @@ function scan(dir){
     console.log('Starting scan for dir: ' + dir);
     klaw(dir)
       .pipe(excludeDirFilter)
-      .pipe(badExtentionFilter)
+      .pipe(badExtentionFinder)
       .on('data', function (item) {
         items.push(item.path)
       })
@@ -108,15 +108,8 @@ function scan(dir){
 
   function isExtentionBlacklisted(ext){
     console.log('checking extention blacklist: ' + ext);
-    var found = false;
-    BLACKLISTED_EXTENTIONS.forEach(function(badExt){
-      if(badExt === ext){
-        console.log('contains: ' + ext);
-        found = true;
-        return;
-      }
-    });
-    return found;
+    var found = BLACKLISTED_EXTENTIONS.indexOf(ext);
+    return found !== -1;
   }
 }
 
