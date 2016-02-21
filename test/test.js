@@ -11,10 +11,10 @@ describe('security analyser', function() {
     before(function() {
     });
 
-    it('runs a security scan', function() {
-      var report = ss.runCliReport(path.join(__dirname, '/fixtures/dir_with_issues'));
-      report.then(function(data){
-        console.log(data);
+    it('runs a security scan with known violations', function() {
+      ss.run(path.join(__dirname, '/fixtures/dir_with_issues/extension_match.pem'))
+          .then(function(annotation){
+        console.log(annotation);
       });
     });
   });

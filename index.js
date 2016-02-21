@@ -1,40 +1,34 @@
 var sidekickAnalyser = require("sidekick-analyser");
-var MESSAGE_TYPE = sidekickAnalyser.MESSAGE_TYPE;
-var klaw = require('klaw');
-var through2 = require('through2');
 var bluebird = require('bluebird');
 
 var path = require('path');
 var assert = require("assert");
 
-var blacklist = require('./patterns/blacklist.json');
+var BLACKLIST = require('./patterns/blacklist.json');
 
 if(require.main === module) {
   execute();
 }
 module.exports = exports = execute;
 
-var EXTENTION_RE = /\.([0-9a-z]+)$/i;
-
-var BLACKLISTED_EXTENTIONS = createExtentionBlacklist(blacklist);
-
 /**
  * Entry function for every analyser. Use sidekickAnalyser to provide input and output functions.
  */
 function execute() {
   sidekickAnalyser(function(setup) {
-    exports.run().then(function(results){
+    exports.run(setup.filePath).then(function(results){
       console.log(JSON.stringify({ meta: results }));
     });
   });
 }
 
-module.exports.run = function(dir) {
-  assert(path.isAbsolute(dir), 'dir must be absolute');
-  return scan(dir)
+module.exports.run = function(filePath) {
+  assert(path.isAbsolute(filePath), 'filePath must be absolute');
+
+  return scan(filePath)
     .then(
-      function(deps){
-        //return convertToAnnotations(deps, fileContent);
+      function(issue){
+        return formatAsAnnotation(issue);
       },
       function(err){
         console.error("failed to analyse");
@@ -44,13 +38,14 @@ module.exports.run = function(dir) {
     );
 };
 
-module.exports.runCliReport = function(dir){
-  assert(path.isAbsolute(dir), 'dir must be absolute');
-  return scan(dir)
+module.exports.runCliReport = function(filePath){
+  assert(path.isAbsolute(filePath), 'filePath must be absolute');
+
+  return scan(filePath)
     .then(
-      function(report){
-        sidekickAnalyser.outputCliReport(report.cliOutput);
-        return report;
+      function(issues){
+        sidekickAnalyser.outputCliReport(issues.cliOutput);
+        return issues;
       },
       function(err){
         console.error("failed to analyse");
@@ -62,77 +57,81 @@ module.exports.runCliReport = function(dir){
 
 /**
  * Perform security scan
- * @param dir string the root directory to scan (absolute path)
+ * @param filePath string the file to analyse
  */
-function scan(dir){
-  var excludeDirFilter = through2.obj(function (item, enc, next) {
-    if (!item.stats.isDirectory()){
-      console.log('adding item: ' + JSON.stringify(item));
-      this.push(item);  //add non dirs
+function scan(filePath){
+  return new Promise(function(resolve, reject){
+    console.log('Starting scan for: ' + filePath);
+
+    var failedRule = checkBlacklist(filePath);
+    if(failedRule){
+      resolve({filePath: filePath, failedRule: failedRule});
     }
-    next();
   });
 
-  var badExtentionFinder = through2.obj(function (item, enc, next) {
-    if(item.stats.isFile()){
-      if(isExtentionBlacklisted(getExtention(item.path))){
-        console.log('have bad file');
-        this.push({item: item, reason: 'extention'});
+  function checkBlacklist(filePath){
+    var ext = getExtension(filePath);
+    var filename = getFilename(filePath, '.' + ext);
+
+    var failedRule;
+    BLACKLIST.some(function(rule){
+      var criteria;
+      if(rule.part === 'filename'){
+        criteria = filename;
+      } else if(rule.part === 'extension'){
+        criteria = ext;
+      } else {
+        criteria = path;
       }
+
+      if(rule.type === 'match'){
+        if(rule.pattern === criteria) {
+          failedRule = rule;
+          return true;
+        }
+      } else {
+        var re = new RegExp(rule.pattern);
+        if(re.test(criteria)){
+          failedRule = rule;
+          return true;
+        }
+      }
+    });
+    return failedRule;
+
+    function getExtension(aPath){
+      return path.extname(aPath).substr(1);
     }
-    next();
-  });
-
-  var promise = new Promise(function(resolve, reject){
-    var items = []; // files, directories, symlinks, etc
-    console.log('Starting scan for dir: ' + dir);
-    klaw(dir)
-      .pipe(excludeDirFilter)
-      .pipe(badExtentionFinder)
-      .on('data', function (item) {
-        items.push(item.path)
-      })
-      .on('end', function () {
-        //anything in items is BAADD
-        resolve(function(items){
-          return items;
-        });
-      });
-  });
-  return promise;
-
-  function getExtention(path){
-    var matches = EXTENTION_RE.exec(path);
-    return matches[1];  //0: pattern, 1: captured group does not include dot
-  }
-
-  function isExtentionBlacklisted(ext){
-    console.log('checking extention blacklist: ' + ext);
-    var found = BLACKLISTED_EXTENTIONS.indexOf(ext);
-    return found !== -1;
+    function getFilename(aPath, ext){
+      return path.basename(aPath, ext);
+    }
   }
 }
 
-function createExtentionBlacklist(blacklist){
-  var exts = [];
-  blacklist.forEach(function(rule){
-    //console.log('checking rule: ' + JSON.stringify(rule));
-    if(rule.part === 'extension'){
-      console.log('have extension: ' + rule.pattern);
-      exts.push(rule.pattern);
-    }
-  });
-  return exts;
-}
-
-function formatAsAnnotation(dep) {
+function formatAsAnnotation(issue) {
+  issue.location = {line: -1, col: -1}; //file level not part of content
   var data = {
-    analyser: 'sidekick-david',
-    location: dep.location,
-    message: dep.message,
-    kind: 'dependency_outdated'
+    analyser: 'sidekick-security',
+    location: issue.location,
+    message: 'File \'' + getRelativePath(issue.filePath) + '\' failed. Reason: ' + issue.failedRule.caption,
+    kind: 'security_violation'
   };
   return sidekickAnalyser.createAnnotation(data);
+}
+
+function createCliOutput(items){
+  var template = sidekickAnalyser.getCliReportTemplate('Security');
+  var violationStr = items.length === 1 ? 'violation' : 'violations';
+  template.push(cliLine(items.length + ' security ' + violationStr + ' found.'));
+  items.forEach(function(item){
+    var fullReason = 'File \'' + getRelativePath(item.file.path) + '\' failed. Reason: ' + item.failedRule.caption;
+    template.push(cliLine(fullReason, sidekickAnalyser.MESSAGE_TYPE.ERROR));
+  });
+  return template;
+}
+
+function getRelativePath(aPath){
+  return path.relative(__dirname, aPath);
 }
 
 function cliLine(message, colour){
