@@ -13,6 +13,9 @@ describe('security analyser', function() {
 
     it('runs a security scan', function() {
       var report = ss.runCliReport(path.join(__dirname, '/fixtures/dir_with_issues'));
+      report.then(function(data){
+        console.log(data);
+      });
     });
   });
 });
