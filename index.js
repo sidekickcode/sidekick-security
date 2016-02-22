@@ -28,7 +28,11 @@ module.exports.run = function(filePath) {
   return scan(filePath)
     .then(
       function(issue){
-        return formatAsAnnotation(issue);
+        if(issue){
+          return formatAsAnnotation(issue);
+        } else {
+          return;
+        }
       },
       function(err){
         console.error("failed to analyse");
@@ -61,11 +65,11 @@ module.exports.runCliReport = function(filePath){
  */
 function scan(filePath){
   return new Promise(function(resolve, reject){
-    console.log('Starting scan for: ' + filePath);
-
     var failedRule = checkBlacklist(filePath);
     if(failedRule){
       resolve({filePath: filePath, failedRule: failedRule});
+    } else {
+      resolve();  //file was ok
     }
   });
 
