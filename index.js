@@ -75,7 +75,8 @@ function scan(filePath){
 
   function checkBlacklist(filePath){
     var ext = getExtension(filePath);
-    var filename = getFilename(filePath, '.' + ext);
+    var regexExt = '.' + ext;
+    var filename = getFilename(filePath, regexExt);
 
     var failedRule;
     BLACKLIST.some(function(rule){
@@ -83,9 +84,9 @@ function scan(filePath){
       if(rule.part === 'filename'){
         criteria = filename;
       } else if(rule.part === 'extension'){
-        criteria = ext;
+        criteria = rule.type === 'match' ? ext : regexExt;  //use .ext for regex and ext for string matches
       } else {
-        criteria = path;
+        criteria = filePath;
       }
 
       if(rule.type === 'match'){
@@ -94,7 +95,7 @@ function scan(filePath){
           return true;
         }
       } else {
-        var re = new RegExp(rule.pattern);
+        var re = new RegExp(rule.pattern, 'i');
         if(re.test(criteria)){
           failedRule = rule;
           return true;
@@ -104,10 +105,19 @@ function scan(filePath){
     return failedRule;
 
     function getExtension(aPath){
-      return path.extname(aPath).substr(1);
+      return path.extname(aPath).substr(1); //return without the .
     }
     function getFilename(aPath, ext){
-      return path.basename(aPath, ext);
+      var base = path.basename(aPath, ext);
+      if(base){
+        return ext === '.' ? base : base + ext; //add the extention so /otr.private.key returns all
+      } else {
+        if(aPath.charAt(0) === '.'){
+          return aPath; //works for /.bashrc
+        } else {
+          return aPath; //works for /someFileWithoutDot
+        }
+      }
     }
   }
 }
