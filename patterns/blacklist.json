@@ -49,7 +49,7 @@
     "part": "extension",
     "type": "regex",
     "oldpattern": "\\Akey(pair)?\\Z",
-    "pattern": "\\S+key(pair)?$/i",
+    "pattern": "/\\S+key(pair)?$/i",
     "caption": "Potential cryptographic private key",
     "description": null
   },
@@ -92,7 +92,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?(bash_|zsh_|z)?history\\Z",
-    "pattern": "\\S+\\.(bash_|zsh_|z)history$/i",
+    "pattern": "/\\S+\\.(bash_|zsh_|z)history$/i",
     "caption": "Shell command history file",
     "description": null
   },
@@ -100,7 +100,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?mysql_history\\Z",
-    "pattern": "\\S+\\.mysql_history$/i",
+    "pattern": "/\\S+\\.mysql_history$/i",
     "caption": "MySQL client command history file",
     "description": null
   },
@@ -108,7 +108,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?psql_history\\Z",
-    "pattern": "\\S+\\.psql_history$/i",
+    "pattern": "/\\S+\\.psql_history$/i",
     "caption": "PostgreSQL client command history file",
     "description": null
   },
@@ -116,7 +116,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?irb_history\\Z",
-    "pattern": "\\S+\\.irb_history$/i",
+    "pattern": "/\\S+\\.irb_history$/i",
     "caption": "Ruby IRB console history file",
     "description": null
   },
@@ -124,7 +124,7 @@
     "part": "path",
     "type": "regex",
     "oldpattern": "\\.?purple\\/accounts\\.xml\\Z",
-    "pattern": "\\S+\\.purple\\/accounts\\.xml$/i",
+    "pattern": "/\\S+\\.purple\\/accounts\\.xml$/i",
     "caption": "Pidgin chat client account configuration file",
     "description": null
   },
@@ -132,7 +132,7 @@
     "part": "path",
     "type": "regex",
     "oldpattern": "\\.?xchat2?\\/servlist_?\\.conf\\Z",
-    "pattern": "\\S+\\.xchat2\\/servlist_\\.conf$/i",
+    "pattern": "/\\S+\\.xchat2\\/servlist_\\.conf$/i",
     "caption": "Hexchat/XChat IRC client server list configuration file",
     "description": null
   },
@@ -140,7 +140,7 @@
     "part": "path",
     "type": "regex",
     "oldpattern": "\\.?irssi\\/config\\Z",
-    "pattern": "\\S+\\.irssi\\/config$/i",
+    "pattern": "/\\S+\\.irssi\\/config$/i",
     "caption": "Irssi IRC client configuration file",
     "description": null
   },
@@ -148,7 +148,7 @@
     "part": "path",
     "type": "regex",
     "oldpattern": "\\.?recon-ng\\/keys\\.db\\Z",
-    "pattern": "\\S+\\.recon-ng\\/keys\\.db$/i",
+    "pattern": "/\\S+\\.recon-ng\\/keys\\.db$/i",
     "caption": "Recon-ng web reconnaissance framework API key database",
     "description": null
   },
@@ -156,7 +156,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?dbeaver-data-sources.xml\\Z",
-    "pattern": "\\S+\\.dbeaver-data-sources\\.xml$/i",
+    "pattern": "/\\S+\\.dbeaver-data-sources\\.xml$/i",
     "caption": "DBeaver SQL database manager configuration file",
     "description": null
   },
@@ -164,7 +164,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?muttrc\\Z",
-    "pattern": "\\S+\\.muttrc$/i",
+    "pattern": "/\\S+\\.muttrc$/i",
     "caption": "Mutt e-mail client configuration file",
     "description": null
   },
@@ -172,7 +172,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?s3cfg\\Z",
-    "pattern": "\\S+\\.s3cfg$/i",
+    "pattern": "/\\S+\\.s3cfg$/i",
     "caption": "S3cmd configuration file",
     "description": null
   },
@@ -180,7 +180,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?trc\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+\\.trc$/i",
     "caption": "T command-line Twitter client configuration file",
     "description": null
   },
@@ -195,15 +195,15 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?gitrobrc\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
-    "caption": "Well, this is awkward... Gitrob configuration file",
+    "pattern": "/\\S+\\.gitrobrc$/i",
+    "caption": "Gitrob configuration file",
     "description": null
   },
   {
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?(bash|zsh)rc\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+\\.(bash|zsh)rc$/i",
     "caption": "Shell configuration file",
     "description": "Shell configuration files might contain information such as server hostnames, passwords and API keys."
   },
@@ -211,7 +211,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?(bash_|zsh_)?profile\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+\\.(bash_|zsh_)profile$/i",
     "caption": "Shell profile configuration file",
     "description": "Shell configuration files might contain information such as server hostnames, passwords and API keys."
   },
@@ -219,7 +219,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?(bash_|zsh_)?aliases\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+\\.(bash_|zsh_)aliases$/i",
     "caption": "Shell command alias configuration file",
     "description": "Shell configuration files might contain information such as server hostnames, passwords and API keys."
   },
@@ -269,7 +269,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A(.*)?config(\\.inc)?\\.php\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+config\\.inc\\.php$/i",
     "caption": "PHP configuration file",
     "description": "Might contain credentials and keys."
   },
@@ -298,7 +298,7 @@
     "part": "extension",
     "type": "regex",
     "oldpattern": "\\Akey(store|ring)\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+key(store|ring)$/i",
     "caption": "GNOME Keyring database file",
     "description": null
   },
@@ -320,7 +320,7 @@
     "part": "extension",
     "type": "regex",
     "oldpattern": "\\Asql(dump)?\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+sql(dump)?$/i",
     "caption": "SQL dump file",
     "description": null
   },
@@ -335,7 +335,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "backup",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+backup/i",
     "caption": "Contains word: backup",
     "description": null
   },
@@ -343,7 +343,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "dump",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+dump/i",
     "caption": "Contains word: dump",
     "description": null
   },
@@ -351,7 +351,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "password",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+password/i",
     "caption": "Contains word: password",
     "description": null
   },
@@ -359,7 +359,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "private.*key",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+private\\S+key$/i",
     "caption": "Contains words: private, key",
     "description": null
   },
@@ -381,7 +381,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?htpasswd\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+\\.htpasswd$/i",
     "caption": "Apache htpasswd file",
     "description": null
   },
@@ -389,7 +389,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?netrc\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "/\\S+\\.netrc$/i",
     "caption": "Configuration file for auto-login process",
     "description": "Might contain username and password."
   },
@@ -418,7 +418,7 @@
     "part": "path",
     "type": "regex",
     "oldpattern": "\\A\\.?gem/credentials\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "\\S+\\.gem\/credentials$/i",
     "caption": "Rubygems credentials file",
     "description": "Might contain API key for a rubygems.org account."
   },
@@ -426,7 +426,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A.*\\.pubxml(\\.user)?\\Z",
-    "pattern": "\\S+(bash_|zsh_|z)?history$/i",
+    "pattern": "\\S+\\.pubxml(\\.user)?$/i",
     "caption": "Potential MSBuild publish profile",
     "description": null
   },
