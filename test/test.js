@@ -1,4 +1,5 @@
 var assert = require('chai').assert;
+var expect = require('chai').expect;
 var ss = require('../../sidekick-security');
 var path = require('path');
 var Promise = require('bluebird');
@@ -38,17 +39,17 @@ describe('security analyser', function() {
         var promise = ss._testRun(path.join(__dirname, '/', filePath));
         promises.push(promise);
         promise.then(function (annotation) {
-          assert.isDefined(annotation, 'failed to find issue with: ' + filePath);
+          expect(annotation).to.exist;
           console.log(annotation);
           issues.push(annotation);
         }, function(err){
-          assert.equal(true, false);
+          expect(true).to.equal(false);
         });
       });
 
       return Promise.all(promises).then(function(){
         try{
-          assert.equal(issues.length, testData.length, 'Did not find all issues');
+          expect(issues.length).to.equal(testData.length);
         } catch(e){
           Promise.reject();
         }
