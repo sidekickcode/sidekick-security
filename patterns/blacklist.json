@@ -319,7 +319,7 @@
   {
     "part": "extension",
     "type": "regex",
-    "oldpattern": "\\Asql(dump)\\Z",
+    "oldpattern": "\\Asql(dump)?\\Z",
     "pattern": "sql(dump)?$",
     "caption": "SQL dump file",
     "description": null
@@ -335,7 +335,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "backup",
-    "pattern": "\\S?backup",
+    "pattern": "backup",
     "caption": "Contains word: backup",
     "description": null
   },
@@ -343,7 +343,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "dump",
-    "pattern": "\\S?dump",
+    "pattern": "dump",
     "caption": "Contains word: dump",
     "description": null
   },
@@ -351,7 +351,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "password",
-    "pattern": "\\S?password",
+    "pattern": "password",
     "caption": "Contains word: password",
     "description": null
   },

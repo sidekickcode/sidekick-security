@@ -1,6 +1,7 @@
 var assert = require('chai').assert;
 var ss = require('../../sidekick-security');
 var path = require('path');
+var Promise = require('bluebird');
 
 describe('security analyser', function() {
 
@@ -10,7 +11,7 @@ describe('security analyser', function() {
     });
 
     it('finds known violation: extension match', function (done) {
-      ss.run(path.join(__dirname, '/fixtures/dir_with_issues/extension/extension_match.pem'))
+      ss._testRun(path.join(__dirname, '/fixtures/dir_with_issues/extension/extension_match.pem'))
         .then(function (annotation) {
           console.log(annotation);
           done();
@@ -18,7 +19,7 @@ describe('security analyser', function() {
     });
 
     it('finds known violation: extension regex', function (done) {
-      ss.run(path.join(__dirname, '/fixtures/dir_with_issues/extension/extension_regex.id_rsa'))
+      ss._testRun(path.join(__dirname, '/fixtures/dir_with_issues/extension/extension_regex.id_rsa'))
         .then(function (annotation) {
           console.log(annotation);
           done();
@@ -30,18 +31,29 @@ describe('security analyser', function() {
   describe('finds know issues in filenames', function(){
 
     function runTest (testData, done){
+      var issues = [];
+      var promises = [];
+
       testData.forEach(function(filePath){
-        ss.run(path.join(__dirname, '/', filePath))
-          .then(function (annotation) {
-            if(annotation){
-              console.log(annotation);
-            } else {
-              console.log('failed to find issue with: ' + filePath);
-              assert.fail();
-            }
-          });
+        var promise = ss._testRun(path.join(__dirname, '/', filePath));
+        promises.push(promise);
+        promise.then(function (annotation) {
+          assert.isDefined(annotation, 'failed to find issue with: ' + filePath);
+          console.log(annotation);
+          issues.push(annotation);
+        }, function(err){
+          assert.equal(true, false);
+        });
       });
-      done();
+
+      return Promise.all(promises).then(function(){
+        try{
+          assert.equal(issues.length, testData.length, 'Did not find all issues');
+        } catch(e){
+          Promise.reject();
+        }
+        done();
+      });
     }
 
     it('detects private keys', function(done) {
@@ -65,7 +77,7 @@ describe('security analyser', function() {
         'ssh/id_ecdsa',
         'privatekeys/id_ecdsa'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files with .pem extension', function(done) {
@@ -74,7 +86,7 @@ describe('security analyser', function() {
         'keys/privatekey.pem',
         '.secret.pem'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files with .key(pair) extension', function(done) {
@@ -85,7 +97,7 @@ describe('security analyser', function() {
         'production.keypair',
         'keys/privatekey.keypair'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files with .pkcs12 extension', function(done) {
@@ -94,7 +106,7 @@ describe('security analyser', function() {
         'keys/privatekey.pkcs12',
         '.secret.pkcs12',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files with .pfx extension', function(done) {
@@ -103,7 +115,7 @@ describe('security analyser', function() {
         'keys/privatekey.pfx',
         '.secret.pfx',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files with .p12 extension', function(done) {
@@ -112,7 +124,7 @@ describe('security analyser', function() {
         'keys/privatekey.p12',
         '.secret.p12',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files with .asc extension', function(done) {
@@ -121,7 +133,7 @@ describe('security analyser', function() {
         'keys/privatekey.asc',
         '.secret.asc',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Pidgin private OTR keys', function(done) {
@@ -130,7 +142,7 @@ describe('security analyser', function() {
         '.purple/otr.private_key',
         'pidgin/otr.private_key',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects shell command history files', function(done) {
@@ -148,7 +160,7 @@ describe('security analyser', function() {
         'history',
         'shell/history'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects MySQL client command history files', function(done) {
@@ -157,7 +169,7 @@ describe('security analyser', function() {
         'mysql_history',
         'history/.mysql_history',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects PostgreSQL client command history files', function(done) {
@@ -166,7 +178,7 @@ describe('security analyser', function() {
         'psql_history',
         'history/.psql_history',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects IRB console history files', function(done) {
@@ -175,7 +187,7 @@ describe('security analyser', function() {
         'irb_history',
         'history/.irb_history',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Pidgin chat client account configuration files', function(done) {
@@ -184,7 +196,7 @@ describe('security analyser', function() {
         'purple/accounts.xml',
         'config/purple/accounts.xml',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects XChat client server list configuration files', function(done) {
@@ -199,7 +211,7 @@ describe('security analyser', function() {
         '.xchat/servlist.conf',
         'config/.xchat/servlist.conf'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Hexchat client server list configuration files', function(done) {
@@ -208,7 +220,7 @@ describe('security analyser', function() {
         'hexchat/servlist.conf',
         'config/.hexchat/servlist.conf'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects irrsi IRC client configuration files', function(done) {
@@ -217,7 +229,7 @@ describe('security analyser', function() {
         'irssi/config',
         'config/.irssi/config'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Recon-ng API key databases', function(done) {
@@ -226,7 +238,7 @@ describe('security analyser', function() {
         'recon-ng/keys.db',
         'config/.recon-ng/keys.db'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects DBeaver configuration files', function(done) {
@@ -235,7 +247,7 @@ describe('security analyser', function() {
         'dbeaver-data-sources.xml',
         'config/.dbeaver-data-sources.xml'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Mutt configuration files', function(done) {
@@ -244,7 +256,7 @@ describe('security analyser', function() {
         'muttrc',
         'config/.muttrc'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects S3cmd configuration files', function(done) {
@@ -253,7 +265,7 @@ describe('security analyser', function() {
         's3cfg',
         'config/.s3cfg'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects T Twitter client configuration files', function(done) {
@@ -262,7 +274,7 @@ describe('security analyser', function() {
         'trc',
         'config/.trc'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects OpenVPN configuration files', function(done) {
@@ -271,7 +283,7 @@ describe('security analyser', function() {
         '.cryptostorm.ovpn',
         'config/work.ovpn'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Gitrob configuration files', function(done) {
@@ -280,7 +292,7 @@ describe('security analyser', function() {
         'gitrobrc',
         'config/.gitrobrc'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects shell configuration files', function(done) {
@@ -292,7 +304,7 @@ describe('security analyser', function() {
         'zshrc',
         'zsh/.zshrc'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects shell profile files', function(done) {
@@ -307,7 +319,7 @@ describe('security analyser', function() {
         'profile',
         'sh/.profile'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects shell alias files', function(done) {
@@ -322,7 +334,7 @@ describe('security analyser', function() {
         'aliases',
         'sh/.aliases'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Rails secret token configuration files', function(done) {
@@ -330,7 +342,7 @@ describe('security analyser', function() {
         'secret_token.rb',
         'config/initializers/secret_token.rb'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Omniauth configuration files', function(done) {
@@ -338,7 +350,7 @@ describe('security analyser', function() {
         'omniauth.rb',
         'config/initializers/omniauth.rb'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Carrierwave configuration files', function(done) {
@@ -346,7 +358,7 @@ describe('security analyser', function() {
         'carrierwave.rb',
         'config/initializers/carrierwave.rb'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Rails schema files', function(done) {
@@ -354,7 +366,7 @@ describe('security analyser', function() {
         'schema.rb',
         'db/schema.rb'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Rails database configuration files', function(done) {
@@ -362,14 +374,14 @@ describe('security analyser', function() {
         'database.yml',
         'config/database.yml'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Django settings files', function(done) {
       var testData = [
         'settings.py',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects PHP configuration files', function(done) {
@@ -379,7 +391,7 @@ describe('security analyser', function() {
         'db_config.php',
         'secret_config.inc.php'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects KeePass database files', function(done) {
@@ -387,7 +399,7 @@ describe('security analyser', function() {
         'keepass.kdb',
         'secret/pwd.kdb'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects 1Password database files', function(done) {
@@ -395,7 +407,7 @@ describe('security analyser', function() {
         'passwords.agilekeychain',
         'secret/pwd.agilekeychain'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Apple keychain database files', function(done) {
@@ -403,7 +415,7 @@ describe('security analyser', function() {
         'passwords.keychain',
         'secret/pwd.keychain'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects GNOME keyring database files', function(done) {
@@ -413,7 +425,7 @@ describe('security analyser', function() {
         'secret/pwd.keystore',
         'secret/pwd.keyring'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects log files', function(done) {
@@ -422,7 +434,7 @@ describe('security analyser', function() {
         'logs/production.log',
         '.secret.log'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects PCAP files', function(done) {
@@ -430,7 +442,7 @@ describe('security analyser', function() {
         'capture.pcap',
         'debug/production.pcap'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects SQL files', function(done) {
@@ -440,7 +452,7 @@ describe('security analyser', function() {
         'setup/database.sql',
         'backup/production.sqldump'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects GnuCash database files', function(done) {
@@ -449,7 +461,7 @@ describe('security analyser', function() {
         '.budget.gnucash',
         'finance/budget.gnucash'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files containing word: backup', function(done) {
@@ -457,7 +469,7 @@ describe('security analyser', function() {
         'backup.tar.gz',
         'backups/dbbackup.zip'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files containing word: dump', function(done) {
@@ -465,7 +477,7 @@ describe('security analyser', function() {
         'dump.bin',
         'debug/memdump.txt'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files containing word: password', function(done) {
@@ -473,7 +485,7 @@ describe('security analyser', function() {
         'passwords.xls',
         'private/password-reminders.txt'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects files containing wordis: private, key', function(done) {
@@ -482,7 +494,7 @@ describe('security analyser', function() {
         'super_private_key.asc',
         'private/private_keys.tar.gz'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Jenkins publish over ssh plugin configuration files', function(done) {
@@ -490,7 +502,7 @@ describe('security analyser', function() {
         'jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin.xml',
         'jenkins/jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin.xml'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Jenkins credentials files', function(done) {
@@ -498,7 +510,7 @@ describe('security analyser', function() {
         'credentials.xml',
         'jenkins/credentials.xml'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Apache htpasswd files', function(done) {
@@ -508,7 +520,7 @@ describe('security analyser', function() {
         'public/htpasswd',
         'admin/.htpasswd'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects netrc files', function(done) {
@@ -518,7 +530,7 @@ describe('security analyser', function() {
         'dotfiles/.netrc',
         'homefolder/netrc'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects KDE Wallet Manager files', function(done) {
@@ -528,7 +540,7 @@ describe('security analyser', function() {
         'dotfiles/secret.kwallet',
         'homefolder/creds.kwallet'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects MediaWiki configuration files', function(done) {
@@ -537,7 +549,7 @@ describe('security analyser', function() {
         'mediawiki/LocalSettings.php',
         'configs/LocalSettings.php'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Tunnelblick VPN configuration files', function(done) {
@@ -546,7 +558,7 @@ describe('security analyser', function() {
         'secret/tunnel.tblk',
         'configs/.tunnelblick.tblk'
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
 
     it('detects Rubygems credentials files', function(done) {
@@ -554,7 +566,7 @@ describe('security analyser', function() {
         '.gem/credentials',
         'gem/credentials',
       ];
-      runTest(testData, done);
+      return runTest(testData, done);
     });
   })
 });

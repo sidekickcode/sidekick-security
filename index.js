@@ -11,18 +11,22 @@ if(require.main === module) {
 }
 module.exports = exports = execute;
 
+var setup;
+
 /**
  * Entry function for every analyser. Use sidekickAnalyser to provide input and output functions.
  */
 function execute() {
-  sidekickAnalyser(function(setup) {
-    exports.run(setup.filePath).then(function(results){
+  sidekickAnalyser(function(analyserSetup) {
+    setup = analyserSetup;
+    run(setup.filePath).then(function(results){
       console.log(JSON.stringify({ meta: results }));
     });
   });
 }
 
-module.exports.run = function(filePath) {
+module.exports._testRun = run;
+function run(filePath) {
   assert(path.isAbsolute(filePath), 'filePath must be absolute');
 
   return scan(filePath)
@@ -33,23 +37,6 @@ module.exports.run = function(filePath) {
         } else {
           return;
         }
-      },
-      function(err){
-        console.error("failed to analyse");
-        console.log({ error: err });
-        process.exit(1);
-      }
-    );
-};
-
-module.exports.runCliReport = function(filePath){
-  assert(path.isAbsolute(filePath), 'filePath must be absolute');
-
-  return scan(filePath)
-    .then(
-      function(issues){
-        sidekickAnalyser.outputCliReport(issues.cliOutput);
-        return issues;
       },
       function(err){
         console.error("failed to analyse");
@@ -123,31 +110,26 @@ function scan(filePath){
 }
 
 function formatAsAnnotation(issue) {
-  issue.location = {line: -1, col: -1}; //file level not part of content
-  var data = {
-    analyser: 'sidekick-security',
-    location: issue.location,
-    message: 'File \'' + getRelativePath(issue.filePath) + '\' failed. Reason: ' + issue.failedRule.caption,
-    kind: 'security_violation'
-  };
-  return sidekickAnalyser.createAnnotation(data);
-}
+  const location = {startLine: -1, startCol: -1, endLine: -1, endCol: -1}; //file level not part of content
+  var analyserName, displayName;
 
-function createCliOutput(items){
-  var template = sidekickAnalyser.getCliReportTemplate('Security');
-  var violationStr = items.length === 1 ? 'violation' : 'violations';
-  template.push(cliLine(items.length + ' security ' + violationStr + ' found.'));
-  items.forEach(function(item){
-    var fullReason = 'File \'' + getRelativePath(item.file.path) + '\' failed. Reason: ' + item.failedRule.caption;
-    template.push(cliLine(fullReason, sidekickAnalyser.MESSAGE_TYPE.ERROR));
-  });
-  return template;
+  if(setup){
+    analyserName = setup.analyser;
+    displayName = setup.displayName;
+  } else {
+    analyserName = 'sidekick-security';
+    displayName = 'security';
+  }
+
+  return {
+    analyser: analyserName,
+    displayName: displayName,
+    location: location,
+    message: 'File \'' + getRelativePath(issue.filePath) + '\' failed. Reason: ' + issue.failedRule.caption,
+    kind: issue.failedRule.caption
+  };
 }
 
 function getRelativePath(aPath){
   return path.relative(__dirname, aPath);
-}
-
-function cliLine(message, colour){
-  return {"colour": colour, "message": message};
 }
