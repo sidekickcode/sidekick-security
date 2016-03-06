@@ -1,13 +1,16 @@
 {
   "analyser": "sidekick-security",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "interpreter": "node",
   "script": "index.js",
-  "scope": "file",
+  "scope": "blob",
   "category": "object",
-  "configurable": true,
+  "configurable": false,
+  "language": "all",
   "displayCategory": "security",
-  "displayName": "Security checker",
-  "shortDescription": "Uses patterns originally developed for the gitrob project to check that your code is free of security issues.",
+  "displayName": "Security",
+  "displayColor": "red",
+  "itemType": "security violation",
+  "shortDescription": "Checks that your code is free of security issues. Uses patterns originally developed for the gitrob project.",
   "underlyingAnalyser": ""
 }

@@ -1,60 +1,71 @@
-var sidekickAnalyser = require("sidekick-analyser");
-var bluebird = require('bluebird');
+"use strict";
 
-var path = require('path');
-var assert = require("assert");
+const sidekickAnalyser = require("sidekick-analyser");
+const fs = require('fs');
+const path = require('path');
 
-var BLACKLIST = require('./patterns/blacklist.json');
+const bluebird = require('bluebird');
+const assert = require("assert");
+
+const BLACKLIST = require('./patterns/blacklist.json');
+
+const LOG_FILE =  path.join(__dirname, '/debug.log');
+
+//log to file as any stdout will be reported to the analyser runner
+function logger(message) {
+  fs.appendFile(LOG_FILE, message + '\n');
+}
 
 if(require.main === module) {
   execute();
 }
 module.exports = exports = execute;
 
-var setup;
+const annotationDefaults = {analyserName: 'sidekick-security'};
 
 /**
- * Entry function for every analyser. Use sidekickAnalyser to provide input and output functions.
+ * Entry function for every analyser. Use sidekickAnalyser to provide input function.
  */
 function execute() {
-  sidekickAnalyser(function(analyserSetup) {
-    setup = analyserSetup;
-    run(setup.filePath).then(function(results){
-      console.log(JSON.stringify({ meta: results }));
-    });
+  sidekickAnalyser(function(setup) {
+    var absFilePath = path.join(setup.path, '/', setup.filePath); //append filename to the root (repo path)
+    assert(path.isAbsolute(absFilePath), 'filePath must be absolute');
+
+    run(absFilePath, setup.filePath)
+      .then(function(results){
+        console.log(JSON.stringify({ meta: results }));
+      });
   });
 }
 
 module.exports._testRun = run;
-function run(filePath) {
-  assert(path.isAbsolute(filePath), 'filePath must be absolute');
-
-  return scan(filePath)
-    .then(
-      function(issue){
-        if(issue){
-          return formatAsAnnotation(issue);
-        } else {
-          return;
-        }
-      },
-      function(err){
-        console.error("failed to analyse");
-        console.log({ error: err });
-        process.exit(1);
+function run(absFilePath, relFilePath) {
+  return scan(absFilePath, relFilePath)
+    .then(function(issue){
+      var results = [];
+      if(issue){
+        results.push(format(issue));  //only issue per file
       }
-    );
-};
+      return results;
+    },
+    function(err){
+      console.error("failed to analyse");
+      console.log({ error: err });
+      process.exit(1);
+    });
+}
 
 /**
  * Perform security scan
- * @param filePath string the file to analyse
+ * @param absFilePath string the absolute path of the file to analyse
+ * @param relFilePath string the relative path of the file to analyse
+ * (used in reporting, e.g. "/keys/sk.id_rsa failed security check!")
  */
-function scan(filePath){
+function scan(absFilePath, relFilePath){
   return new Promise(function(resolve, reject){
-    var failedRule = checkBlacklist(filePath);
+    var failedRule = checkBlacklist(absFilePath); //MUST be the absolute file path for the fs checks
     if(failedRule){
-      resolve({filePath: filePath, failedRule: failedRule});
+      resolve({filePath: relFilePath, failedRule: failedRule}); //report the relative file path
     } else {
       resolve();  //file was ok
     }
@@ -109,27 +120,13 @@ function scan(filePath){
   }
 }
 
-function formatAsAnnotation(issue) {
+function format(issue) {
   const location = {startLine: -1, startCol: -1, endLine: -1, endCol: -1}; //file level not part of content
-  var analyserName, displayName;
-
-  if(setup){
-    analyserName = setup.analyser;
-    displayName = setup.displayName;
-  } else {
-    analyserName = 'sidekick-security';
-    displayName = 'security';
-  }
 
   return {
-    analyser: analyserName,
-    displayName: displayName,
+    analyser: annotationDefaults.analyserName,
     location: location,
-    message: 'File \'' + getRelativePath(issue.filePath) + '\' failed. Reason: ' + issue.failedRule.caption,
-    kind: issue.failedRule.caption
+    message: `File '${issue.filePath}' failed. Reason: ${issue.failedRule.caption}`,
+    kind: issue.failedRule.caption,
   };
-}
-
-function getRelativePath(aPath){
-  return path.relative(__dirname, aPath);
 }
