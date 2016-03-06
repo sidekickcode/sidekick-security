@@ -1,6 +1,6 @@
 {
   "name": "sidekick-david",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Uses 'david' to check that your node dependencies are up to date.",
   "keywords": [
     "javascript",
