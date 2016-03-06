@@ -1,5 +1,5 @@
 {
-  "name": "sidekick-david",
+  "name": "sidekick-security",
   "version": "1.0.0",
   "description": "Uses 'david' to check that your node dependencies are up to date.",
   "keywords": [
@@ -8,14 +8,14 @@
     "quality",
     "dependencies"
   ],
-  "homepage": "https://sidekickjs.com",
+  "homepage": "https://sidekickcode.com",
   "bugs": {
-    "url": "https://github.com/sidekick-code/sidekick-david/issues"
+    "url": "https://github.com/sidekickcode/sidekick-david/issues"
   },
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sidekick-code/sidekick-david.git"
+    "url": "https://github.com/sidekickcode/sidekick-david.git"
   },
   "scripts": {
     "test": "exec mocha"
