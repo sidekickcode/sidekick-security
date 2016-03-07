@@ -1,15 +1,17 @@
 "use strict";
 
 const sidekickAnalyser = require("sidekick-analyser");
+
 const fs = require('fs');
 const path = require('path');
+const assert = require("assert");
 
 const bluebird = require('bluebird');
-const assert = require("assert");
 
 const BLACKLIST = require('./patterns/blacklist.json');
 
 const LOG_FILE =  path.join(__dirname, '/debug.log');
+const annotationDefaults = {analyserName: 'sidekick-security'};
 
 //log to file as any stdout will be reported to the analyser runner
 function logger(message) {
@@ -20,8 +22,6 @@ if(require.main === module) {
   execute();
 }
 module.exports = exports = execute;
-
-const annotationDefaults = {analyserName: 'sidekick-security'};
 
 /**
  * Entry function for every analyser. Use sidekickAnalyser to provide input function.

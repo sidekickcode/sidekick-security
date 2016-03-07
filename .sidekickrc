@@ -9,6 +9,17 @@
                 "js-todos",
                 "jscs"
             ]
-        }
+        },
+        "json": {
+            "analysers": [
+                "sidekick-david"
+            ]
+        },
+        "all": {
+            "analysers": [
+                "sidekick-security"
+            ]
+       }
+
     }
 }
