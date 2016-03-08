@@ -123,10 +123,11 @@ function scan(absFilePath, relFilePath){
 function format(issue) {
   const location = {startLine: -1, startCol: -1, endLine: -1, endCol: -1}; //file level not part of content
 
+  //message: `File '${issue.filePath}' failed. Reason: ${issue.failedRule.caption}`,
   return {
     analyser: annotationDefaults.analyserName,
     location: location,
-    message: `File '${issue.filePath}' failed. Reason: ${issue.failedRule.caption}`,
+    message: `Security violation: ${issue.failedRule.caption}`,
     kind: issue.failedRule.caption,
   };
 }

@@ -7,10 +7,14 @@
   "category": "object",
   "configurable": false,
   "language": "all",
+  "shortName": "security",
   "displayCategory": "security",
   "displayName": "Security",
   "displayColor": "red",
   "itemType": "security violation",
-  "shortDescription": "Checks that your code is free of security issues. Uses patterns originally developed for the gitrob project.",
-  "underlyingAnalyser": ""
+  "shortDescription": "Checks that your code is free of security issues.",
+  "underlyingAnalyser": {
+    "name": "gitrob",
+    "url": "https://github.com/michenriksen/gitrob"
+  }
 }
