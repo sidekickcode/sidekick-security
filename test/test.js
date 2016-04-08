@@ -15,7 +15,7 @@ describe('security analyser', function() {
     });
 
     it('finds known violation: extension match', function (done) {
-      ss._testRun(path.join(__dirname, '/fixtures/dir_with_issues/extension/extension_match.pem'))
+      ss._testRun('/fixtures/dir_with_issues/extension/extension_match.pem')
         .then(function (annotation) {
           console.log(annotation);
           done();
@@ -23,7 +23,7 @@ describe('security analyser', function() {
     });
 
     it('finds known violation: extension regex', function (done) {
-      ss._testRun(path.join(__dirname, '/fixtures/dir_with_issues/extension/extension_regex.id_rsa'))
+      ss._testRun('/fixtures/dir_with_issues/extension/extension_regex.id_rsa')
         .then(function (annotation) {
           console.log(annotation);
           done();

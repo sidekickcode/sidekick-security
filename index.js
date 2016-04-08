@@ -28,10 +28,7 @@ module.exports = exports = execute;
  */
 function execute() {
   sidekickAnalyser(function(setup) {
-    var absFilePath = path.join(setup.path, '/', setup.filePath); //append filename to the root (repo path)
-    assert(path.isAbsolute(absFilePath), 'filePath must be absolute');
-
-    run(absFilePath, setup.filePath)
+    run(setup.filePath)
       .then(function(results){
         console.log(JSON.stringify({ meta: results }));
       });
@@ -39,8 +36,8 @@ function execute() {
 }
 
 module.exports._testRun = run;
-function run(absFilePath, relFilePath) {
-  return scan(absFilePath, relFilePath)
+function run(relFilePath) {
+  return scan(relFilePath)
     .then(function(issue){
       var results = [];
       if(issue){
@@ -57,13 +54,12 @@ function run(absFilePath, relFilePath) {
 
 /**
  * Perform security scan
- * @param absFilePath string the absolute path of the file to analyse
  * @param relFilePath string the relative path of the file to analyse
  * (used in reporting, e.g. "/keys/sk.id_rsa failed security check!")
  */
-function scan(absFilePath, relFilePath){
+function scan(relFilePath){
   return new Promise(function(resolve, reject){
-    var failedRule = checkBlacklist(absFilePath); //MUST be the absolute file path for the fs checks
+    var failedRule = checkBlacklist(relFilePath); //MUST be the absolute file path for the fs checks
     if(failedRule){
       resolve({filePath: relFilePath, failedRule: failedRule}); //report the relative file path
     } else {
