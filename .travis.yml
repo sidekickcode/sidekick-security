@@ -4,3 +4,7 @@ node_js:
 
 notifications:
   slack: we-are-sidekick:GeIT5wtuKMLImpFXYHWzIGzI
+
+script:
+  - npm test
+  - sidekick run --ci

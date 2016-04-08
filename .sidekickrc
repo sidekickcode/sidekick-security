@@ -1,25 +1,23 @@
 {
     "exclude": [
-        "/node_modules"
     ],
     "languages": {
-        "js": {
-            "analysers": [
-                "eslint",
-                "js-todos",
-                "jscs"
-            ]
+      "js": {
+        "sidekick-js-todos": {
+          "failCiOnError": false,
+          "version": "1.0.1"
         },
-        "json": {
-            "analysers": [
-                "sidekick-david"
-            ]
+        "sidekick-jscs": {
+            "failCiOnError": false
         },
-        "all": {
-            "analysers": [
-                "sidekick-security"
-            ]
-       }
-
+        "sidekick-eslint": {
+            "failCiOnError": true
+        }
+      },
+      "json": {
+          "sidekick-david": {
+              "failCiOnError": false
+          }
+      }
     }
 }
