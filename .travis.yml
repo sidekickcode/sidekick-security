@@ -1,10 +1,14 @@
 language: node_js
 node_js:
   - "5.1"
+  - "4.2"
 
 notifications:
+  email: false
   slack: we-are-sidekick:GeIT5wtuKMLImpFXYHWzIGzI
 
 script:
   - npm test
+  - npm i sidekick
+  - sidekick -v
   - sidekick run --ci
