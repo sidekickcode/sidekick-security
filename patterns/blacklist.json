@@ -180,7 +180,7 @@
     "part": "filename",
     "type": "regex",
     "oldpattern": "\\A\\.?trc\\Z",
-    "pattern": "\\S?\\.?trc$",
+    "pattern": "\\S?\\.trc$",
     "caption": "T command-line Twitter client configuration file",
     "description": null
   },
