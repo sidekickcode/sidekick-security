@@ -1,6 +1,6 @@
 {
   "name": "sidekick-security",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Sidekick analyser that checks that your code is free of security violations. Uses regex patterns originally developed by the gitrob project.",
   "keywords": [
     "javascript",
